@@ -125,6 +125,7 @@ public class MovieAdapter implements MoviePort {
                 response.setStatusCode("200");
                 response.setStatusDesc("Movie not available");
             }
+
             int movieId = moviesList.get(0).getId();
             List<TheatreEntity> theatresList = theatreRepo.getByMovieId(movieId);
 
