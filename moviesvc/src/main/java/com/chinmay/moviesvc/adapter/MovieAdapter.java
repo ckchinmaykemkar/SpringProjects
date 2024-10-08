@@ -1,14 +1,16 @@
 package com.chinmay.moviesvc.adapter;
 
 import com.chinmay.moviesvc.exception.MovieException;
+import com.chinmay.moviesvc.model.request.GetSeatsReq;
+import com.chinmay.moviesvc.model.request.*;
 import com.chinmay.moviesvc.model.request.GetShowsRequest;
-import com.chinmay.moviesvc.model.response.BaseResponse;
-import com.chinmay.moviesvc.model.response.GetShowsFinalResponse;
-import com.chinmay.moviesvc.model.response.GetShowsResponse;
+import com.chinmay.moviesvc.model.response.*;
 import com.chinmay.moviesvc.port.MoviePort;
+import com.chinmay.moviesvc.shared.entity.Booking;
 import com.chinmay.moviesvc.shared.entity.MovieEntity;
 import com.chinmay.moviesvc.shared.entity.SeatEntity;
 import com.chinmay.moviesvc.shared.entity.TheatreEntity;
+import com.chinmay.moviesvc.shared.repository.BookingShowJpaRepo;
 import com.chinmay.moviesvc.shared.repository.MovieJpaRepo;
 import com.chinmay.moviesvc.shared.repository.SeatJpaRepo;
 import com.chinmay.moviesvc.shared.repository.TheatreJpaRepo;
@@ -35,6 +37,9 @@ public class MovieAdapter implements MoviePort {
 
     @Autowired
     SeatJpaRepo seatRepo;
+
+    @Autowired
+    BookingShowJpaRepo bookingRepo;
 
     @Override
     public BaseResponse addMovies(List<MovieEntity> request) {
@@ -158,8 +163,76 @@ public class MovieAdapter implements MoviePort {
         return response;
     }
 
-    private String generatePlaylistId() {
-        return "TH" + UUID.randomUUID().toString().substring(0, 8).toUpperCase();
+    @Override
+    public GetSeatsFinalResponse getSeatsByTiming(GetSeatsReq request) {
+        GetSeatsFinalResponse response = new GetSeatsFinalResponse();
+
+        try {
+            List<SeatEntity> seatsList = seatRepo.getSeatsByMovieIdAndTheatreIdAndTiming(request.getMovieId(), request.getTheatreId(), request.getTiming());
+            List<SeatsInfo> seatsinfo = seatsList.stream().map(it->
+            {
+                SeatsInfo si = new SeatsInfo();
+                si.setSeatNum(it.getSeatNum());
+                si.setRowSeq(it.getRowSeq());
+                si.setStatus(it.getStatus());
+                si.setType(it.getType());
+                return si;
+            }).collect(Collectors.toList());
+
+            response.setSeatsInfos(seatsinfo);
+            response.setStatusMsg("Success");
+            response.setStatusCode("200");
+            response.setStatusDesc("Success");
+        }catch (MovieException ex){
+            logger.error(ex.getMessage());
+            response.setStatusMsg("Error Occurred");
+            response.setStatusCode("500");
+            response.setStatusDesc("Something went wrong");
+
+        }
+        return null;
+    }
+
+    @Override
+    public BaseResponse bookSeats(BookSeatsReq request) {
+        BaseResponse response = new BaseResponse();
+
+        try{
+            String bookingId = generatePlaylistId("BMS");
+
+            List<Booking> bookings = request.getSeats().stream().map(it->
+            {
+                Booking book = new Booking();
+                book.setBookingId(bookingId);
+                book.setMovieId(request.getMovieId());
+                book.setTheatreId(request.getTheatreId());
+                book.setType(it.getType());
+                book.setSeatNum(it.getSeatNum());
+                book.setRowSeq(it.getRowSeq());
+                book.setUserId(request.getUserId());
+                return book;
+            }).collect(Collectors.toList());
+
+            bookingRepo.saveAll(bookings);
+            //modify the sstatus of these seats in Seats Master table
+
+
+
+
+
+
+        }catch (MovieException ex){
+            logger.error(ex.getMessage());
+            response.setStatusMsg("Error Occurred");
+            response.setStatusCode("500");
+            response.setStatusDesc("Something went wrong");
+        }
+
+        return null;
+    }
+
+    private String generatePlaylistId(String prefix) {
+        return prefix + UUID.randomUUID().toString().substring(0, 8).toUpperCase();
     }
 
 }

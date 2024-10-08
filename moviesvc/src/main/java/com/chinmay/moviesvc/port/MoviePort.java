@@ -1,7 +1,10 @@
 package com.chinmay.moviesvc.port;
 
+import com.chinmay.moviesvc.model.request.GetSeatsReq;
+import com.chinmay.moviesvc.model.request.*;
 import com.chinmay.moviesvc.model.request.GetShowsRequest;
 import com.chinmay.moviesvc.model.response.BaseResponse;
+import com.chinmay.moviesvc.model.response.GetSeatsFinalResponse;
 import com.chinmay.moviesvc.model.response.GetShowsFinalResponse;
 import com.chinmay.moviesvc.shared.entity.MovieEntity;
 import com.chinmay.moviesvc.shared.entity.SeatEntity;
@@ -18,5 +21,9 @@ public interface MoviePort {
    BaseResponse addSeat(List<SeatEntity> request);
 
    GetShowsFinalResponse getShows(GetShowsRequest request);
+
+   GetSeatsFinalResponse getSeatsByTiming(GetSeatsReq request);
+
+   BaseResponse bookSeats(BookSeatsReq req);
 
 }

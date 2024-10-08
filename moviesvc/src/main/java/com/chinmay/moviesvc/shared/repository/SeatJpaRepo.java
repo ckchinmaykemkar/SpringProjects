@@ -12,6 +12,6 @@ import java.util.List;
 @Repository
 @Transactional
 public interface SeatJpaRepo extends JpaRepository<SeatEntity,Long> {
-    @Query(name="SELECT s FROM SeatEntity s WHERE s.theatreId =?1 and s.movieId =?2")
-    List<SeatEntity> getSeatsByMovieIdAndTheatreId(int movieId, String theatreId);
+    @Query(name="SELECT s FROM SeatEntity s WHERE s.theatreId =?1 and s.movieId =?2 and s.timing =?3")
+    List<SeatEntity> getSeatsByMovieIdAndTheatreIdAndTiming(int movieId, String theatreId,String timing);
 }

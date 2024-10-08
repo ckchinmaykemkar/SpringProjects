@@ -1,32 +1,28 @@
 package com.chinmay.moviesvc.shared.entity;
 
-
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
 
 @Entity
-@Table(name="seat")
-@Data
-@AllArgsConstructor
-@NoArgsConstructor
-public class SeatEntity {
-
+@Table(name = "Bookings")
+public class Booking {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
     int id;
 
-    @Column(name = "theatreId")
+    @Column(name="bookingId")
+    String bookingId;
+
+    @Column(name="theatreId")
     String theatreId;
 
-    @Column(name = "movieId")
+    @Column(name="movieId")
     int movieId;
 
-    @Column(name="timing")
-    String timing;
+    @Column(name="userId")
+    String userId;
+
 
     @Column(name="rowSeq")
     String rowSeq;
@@ -34,11 +30,9 @@ public class SeatEntity {
     @Column(name="seatNum")
     int seatNum;
 
-    @Column(name="status")
-    String status;
-
     @Column(name="type")
     String type;
+
 
     public int getId() {
         return id;
@@ -46,6 +40,14 @@ public class SeatEntity {
 
     public void setId(int id) {
         this.id = id;
+    }
+
+    public String getBookingId() {
+        return bookingId;
+    }
+
+    public void setBookingId(String bookingId) {
+        this.bookingId = bookingId;
     }
 
     public String getTheatreId() {
@@ -64,12 +66,12 @@ public class SeatEntity {
         this.movieId = movieId;
     }
 
-    public String getTiming() {
-        return timing;
+    public String getUserId() {
+        return userId;
     }
 
-    public void setTiming(String timing) {
-        this.timing = timing;
+    public void setUserId(String userId) {
+        this.userId = userId;
     }
 
     public String getRowSeq() {
@@ -88,14 +90,6 @@ public class SeatEntity {
         this.seatNum = seatNum;
     }
 
-    public String getStatus() {
-        return status;
-    }
-
-    public void setStatus(String status) {
-        this.status = status;
-    }
-
     public String getType() {
         return type;
     }
@@ -103,5 +97,6 @@ public class SeatEntity {
     public void setType(String type) {
         this.type = type;
     }
+
 
 }
