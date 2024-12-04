@@ -13,7 +13,7 @@ public class Restaurant {
     @Column(name = "id")
     int id;
 
-    @Column(name="restaurantId")
+    @Column(name="restaurantId",unique = true)
     String restaurantId;
 
     @Column(name="name")

@@ -2,6 +2,7 @@ package com.chinmay.food_delivery_svc.entity;
 
 import jakarta.persistence.*;
 
+import java.time.LocalDate;
 import java.util.Date;
 
 @Entity
@@ -34,7 +35,7 @@ public class Shopping_cart_table {
 
     @Column(name="creation_date")
     @Temporal(value = TemporalType.DATE)
-    Date creationDate;
+    LocalDate creationDate;
 
     @Column(name = "isOrderPlaced")
     String isOrderPlaced;
@@ -95,11 +96,11 @@ public class Shopping_cart_table {
         this.price = price;
     }
 
-    public Date getCreationDate() {
+    public LocalDate getCreationDate() {
         return creationDate;
     }
 
-    public void setCreationDate(Date creationDate) {
+    public void setCreationDate(LocalDate creationDate) {
         this.creationDate = creationDate;
     }
 

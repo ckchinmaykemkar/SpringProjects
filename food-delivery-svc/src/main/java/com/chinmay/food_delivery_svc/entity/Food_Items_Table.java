@@ -12,7 +12,7 @@ public class Food_Items_Table {
     int id;
 
    @ManyToOne
-   @JoinColumn(name = "restaurantId")
+   @JoinColumn(name = "restaurantId" ,referencedColumnName = "restaurantId")
    Restaurant restaurant;
 
    @Column(name="category")
