@@ -1,9 +1,6 @@
 package com.chinmay.split.port;
 
-import com.chinmay.split.model.request.CreateExpenseReq;
-import com.chinmay.split.model.request.CreateGroupReq;
-import com.chinmay.split.model.request.CreateUserReq;
-import com.chinmay.split.model.request.OwesRequest;
+import com.chinmay.split.model.request.*;
 import com.chinmay.split.model.response.BaseResponse;
 import com.chinmay.split.model.response.OwesListFinalResp;
 import org.springframework.http.ResponseEntity;
@@ -17,6 +14,8 @@ public interface SplitPort {
     public ResponseEntity<BaseResponse> createGroup(CreateGroupReq req);
 
     public ResponseEntity<BaseResponse> createExpense(CreateExpenseReq req);
+
+    public ResponseEntity<BaseResponse> updatePayment(SettlePaymentReq req);
 
     ResponseEntity<OwesListFinalResp> getOwesList(OwesRequest req,int id);
 

@@ -1,10 +1,6 @@
 package com.chinmay.split.adapter;
 
-import com.chinmay.split.exception.SplitException;
-import com.chinmay.split.model.request.CreateExpenseReq;
-import com.chinmay.split.model.request.CreateGroupReq;
-import com.chinmay.split.model.request.CreateUserReq;
-import com.chinmay.split.model.request.OwesRequest;
+import com.chinmay.split.model.request.*;
 import com.chinmay.split.model.response.BaseResponse;
 import com.chinmay.split.model.response.OwesList;
 import com.chinmay.split.model.response.OwesListFinalResp;
@@ -120,6 +116,7 @@ public class SplitAdapter implements SplitPort {
                         est.setExpenseId(expenseId);
                         est.setGroupId(req.getGroupId());
                         est.setExpenseName(req.getExpenseName());
+                        double amountTobePaid = amountHelper(req.getGroupId(),expenseId,group.getUserId(),group.getHostId(), amountToBePaid);
                         est.setAmountToBePaid(amountToBePaid);
                         est.setExpenseName(req.getExpenseName());
                         est.setHostId(req.getHostId());
@@ -128,7 +125,7 @@ public class SplitAdapter implements SplitPort {
                         }else{
                             est.setPayeeId(group.getUserId());
                         }
-                        est.setPaymentStatus("PENDING");
+                        est.setPaymentStatus(getPaymentStatus(amountTobePaid));
                         return est;
 
                     }).toList();
@@ -161,6 +158,72 @@ public class SplitAdapter implements SplitPort {
 
 
         return new ResponseEntity<>(res, HttpStatus.OK);
+    }
+
+    @Override
+    public ResponseEntity<BaseResponse> updatePayment(SettlePaymentReq req) {
+        BaseResponse res = new BaseResponse();
+        try {
+            // Retrieve the payment record from the database
+            Expense_split_table expenseSplit = esp.getHostOwesMoneyRecord(req.getGroupId(), req.getExpenseId(), req.getPayeeId(), req.getHostId());
+
+            if (expenseSplit == null) {
+                res.setStatus("Error");
+                res.setStatusCode("404");
+                res.setStatusDesc("Payment record not found");
+                return new ResponseEntity<>(res, HttpStatus.NOT_FOUND);
+            }
+
+            // Update the payment amount
+            double newAmount = expenseSplit.getAmountToBePaid() - req.getAmount();
+            expenseSplit.setAmountToBePaid(newAmount);
+
+            // Update the payment status
+            expenseSplit.setPaymentStatus(getPaymentStatus(newAmount));
+
+            // Save the updated record back to the database
+            esp.save(expenseSplit);
+
+            // Update the total payment status if necessary
+            Expense_table expenseTable = ej.findByExpenseId(req.getExpenseId());
+            if (expenseTable != null) {
+                double totalAmountPaid = expenseTable.getTotalAmount() - req.getAmount();
+                expenseTable.setTotalAmount(totalAmountPaid);
+                expenseTable.setPaymentStatus(getPaymentStatus(totalAmountPaid));
+                ej.save(expenseTable);
+            }
+
+            res.setStatusDesc("Success");
+            res.setStatus("Success");
+            res.setStatusCode("200");
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            res.setStatus("Error");
+            res.setStatusCode("500");
+            res.setStatusDesc(ex.getMessage());
+            return new ResponseEntity<>(res, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+        return new ResponseEntity<>(res, HttpStatus.OK);
+    }
+
+    private String getPaymentStatus(double amountTobePaid) {
+        if(amountTobePaid<=0.0){
+            return "SETTLED";
+        }
+
+        return "PENDING";
+
+    }
+
+    private double amountHelper(String groupId, String expenseId, int userId, int hostId, double amountToBePaid) {
+        //query to fetch amount whether hostId owes any money to user id and then minus that
+
+        Expense_split_table expSplitObj = esp.getHostOwesMoneyRecord(groupId,expenseId,userId,hostId);
+
+        double amountOwes = expSplitObj.getAmountToBePaid();
+        double finalAmount = Math.abs(amountOwes-amountToBePaid);
+        return finalAmount;
     }
 
     @Override

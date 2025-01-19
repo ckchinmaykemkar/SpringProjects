@@ -19,4 +19,7 @@ public interface ExpenseSplitJpa extends JpaRepository<Expense_split_table,Long>
     @Query(value = "select u.first_name as first_name , es.amountToBePaid as amountToBePaid from Expense_split_table es " +
             "inner join User_table u on u.id = es.payeeId where es.amountToBePaid > 0 and es.payeeId = ?1",nativeQuery = true)
     public Page<ExpenseProjection> getPayeeRecords(int payeeId, Pageable page);
+
+    @Query(value = "select e from Expense_split_table e where e.groupId =?1 and e.payeeId =?4 and e.hostId=?3 and e.paymentStatus='PENDING'")
+    public Expense_split_table getHostOwesMoneyRecord(String groupId, String expenseId, int userId, int hostId);
 }
